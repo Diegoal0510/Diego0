@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Humor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            text-align: center;
+            font-size: 20px;
+        }
+        .heart {
+            font-size: 50px;
+        }
+        #question-container {
+            font-size: 25px;
+            margin: 20px;
+        }
+        button {
+            font-size: 25px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+            background-color: #ff3366;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff6699;
+        }
+        #next-button {
+            font-size: 30px;
+            padding: 15px 30px;
+        }
+        textarea {
+            width: 80%;
+            height: 150px;
+            font-size: 20px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid #ff3366;
+        }
+        input[type="text"], input[type="date"], input[type="number"] {
+            font-size: 20px;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 2px solid #ff3366;
+        }
+    </style>
+</head>
+<body>
+    <h1>WELCOME BILL!</h1>
+    <p>Isi dulu ya bentar:</p>
+    
+    <div id="question-container"></div>
+    <button id="next-button" onclick="showNextQuestion()">Mulai</button>
+
+    <div id="hearts" class="heart">
+        ❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️
+    </div>
+
+    <script>
+        // Pertanyaan data pribadi
+        const personalQuestions = [
+            {
+                question: "Nama Lengkap:",
+                inputType: "text",
+                id: "full-name"
+            },
+            {
+                question: "Tempat, Tanggal Lahir:",
+                inputType: "date",
+                id: "birth-date"
+            },
+            {
+                question: "Berapa umur kamu?",
+                inputType: "number",
+                id: "age"
+            }
+        ];
+
+        // Pertanyaan humoris
+        const questions = [
+            {
+                question: "Lebih suka kalau Makan banyak pagi apa malem?",
+                answers: ["Pagi", "Malam"]
+            },
+            {
+                question: "lebih suka makan pizza atau burger?",
+                answers: ["Pizza", "Burger"]
+            },
+            {
+                question: "Kmu lebih suka kemana ?",
+                answers: ["Pantai", "Gunung"]
+            },
+            {
+                question: "klo kita main bareng, kamu mau kemana?",
+                answers: [] // Pertanyaan esai, tanpa pilihan A/B
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let userPersonalData = {};
+
+        // Fungsi untuk menampilkan pertanyaan
+        function showNextQuestion() {
+            // Jika masih di bagian data pribadi
+            if (currentQuestion < personalQuestions.length) {
+                const question = personalQuestions[currentQuestion];
+                document.getElementById("question-container").innerHTML = `
+                    <p>${question.question}</p>
+                    <input type="${question.inputType}" id="${question.id}" placeholder="${question.question}">
+                `;
+                // Ubah tombol untuk lanjutkan
+                document.getElementById("next-button").innerHTML = "Lanjutkan";
+                document.getElementById("next-button").onclick = storePersonalData;
+                currentQuestion++;
+            } else if (currentQuestion < personalQuestions.length + questions.length) {
+                // Jika sudah selesai dengan data pribadi, lanjut ke pertanyaan humoris
+                const questionIndex = currentQuestion - personalQuestions.length;
+                if (questions[questionIndex].answers.length > 0) {
+                    document.getElementById("question-container").innerHTML = `
+                        <p>${questions[questionIndex].question}</p>
+                        <button onclick="nextQuestion('A')">Jawaban A: ${questions[questionIndex].answers[0]}</button>
+                        <button onclick="nextQuestion('B')">Jawaban B: ${questions[questionIndex].answers[1]}</button>
+                    `;
+                } else {
+                    document.getElementById("question-container").innerHTML = `
+                        <p>${questions[questionIndex].question}</p>
+                        <textarea id="essay-answer" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                        <button onclick="submitEssay()">Kirim Jawaban Esai</button>
+                    `;
+                }
+                currentQuestion++;
+            } else {
+                // Setelah semua pertanyaan selesai, tampilkan tombol untuk mengirim jawaban
+                document.getElementById("question-container").innerHTML = `
+                    <p>Terima kasih telah menjawab!</p>
+                    <a href="https://wa.me/?text=${encodeURIComponent('Nama: ' + userPersonalData['full-name'] + ', Tanggal Lahir: ' + userPersonalData['birth-date'] + ', Umur: ' + userPersonalData['age'] + ', Jawaban kamu: ' + userAnswers.join(', '))}" target="_blank">
+                        Kirim Jawaban ke WhatsApp
+                    </a>
+                `;
+                document.getElementById("next-button").style.display = "none";
+            }
+        }
+
+        // Fungsi untuk menyimpan data pribadi
+        function storePersonalData() {
+            userPersonalData['full-name'] = document.getElementById("full-name").value;
+            userPersonalData['birth-date'] = document.getElementById("birth-date").value;
+            userPersonalData['age'] = document.getElementById("age").value;
+            showNextQuestion();
+        }
+
+        // Fungsi untuk menyimpan jawaban dan melanjutkan ke pertanyaan berikutnya
+        function nextQuestion(answer) {
+            userAnswers.push(answer);
+            showNextQuestion();
+        }
+
+        // Fungsi untuk mengirim jawaban esai dan melanjutkan
+        function submitEssay() {
+            const essayAnswer = document.getElementById("essay-answer").value;
+            userAnswers.push(`Jawaban Esai: ${essayAnswer}`);
+            showNextQuestion();
+        }
+    </script>
+</body>
+</html>
